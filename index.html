@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mappe aule</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 16px;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 1.5em;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 12px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mappe delle aule</h1>
+
+  <input
+    type="text"
+    id="search"
+    placeholder="Cerca aula (es. Rimondino)"
+  >
+
+  <ul id="lista-aule"></ul>
+
+  <script>
+    const aule = [
+      { nome: "Aula Rimondino", link: "https://drive.google.com/FILE1" },
+      { nome: "Aula Magna", link: "https://drive.google.com/FILE2" },
+      { nome: "Aula 1", link: "https://drive.google.com/FILE3" },
+      { nome: "Laboratorio XYZ", link: "https://drive.google.com/FILE4" }
+    ];
+
+    const lista = document.getElementById("lista-aule");
+    const search = document.getElementById("search");
+
+    function mostraAule(filtro = "") {
+      lista.innerHTML = "";
+      aule
+        .filter(a => a.nome.toLowerCase().includes(filtro.toLowerCase()))
+        .forEach(a => {
+          const li = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = a.link;
+          link.textContent = a.nome;
+          link.target = "_blank";
+          li.appendChild(link);
+          lista.appendChild(li);
+        });
+    }
+
+    search.addEventListener("input", e => {
+      mostraAule(e.target.value);
+    });
+
+    mostraAule();
+  </script>
+
+</body>
+</html>
+
