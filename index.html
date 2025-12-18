@@ -12,6 +12,7 @@ body {
   max-width: 600px;
 }
 
+/* HEADER */
 .header {
   display: flex;
   align-items: center;
@@ -27,6 +28,7 @@ h1 {
   margin: 0;
 }
 
+/* SEARCH */
 input {
   width: 100%;
   padding: 12px;
@@ -34,6 +36,7 @@ input {
   margin-bottom: 18px;
 }
 
+/* LISTA */
 ul {
   list-style: none;
   padding: 0;
@@ -71,11 +74,16 @@ a:hover {
   content: " ▸";
 }
 
-.titolo-non-collassabile {
+.titolo-nc {
   font-weight: bold;
   color: #000;
   font-size: 1.2em;
   padding-top: 22px;
+  cursor: pointer;
+}
+
+.nascosto {
+  display: none;
 }
 
 /* VIEWER */
@@ -183,9 +191,12 @@ const search = document.getElementById("search");
 const viewer = document.getElementById("viewer");
 const viewerImg = document.getElementById("viewer-img");
 
+let sezioni = [];
+
 function render(filtro="") {
   lista.innerHTML = "";
-  let contenitore = lista;
+  sezioni = [];
+  let contenitore = null;
 
   dati.filter(d => d.nome?.toLowerCase().includes(filtro.toLowerCase()))
     .forEach(d => {
@@ -193,7 +204,7 @@ function render(filtro="") {
     if (d.tipo === "titolo-nc") {
       const li = document.createElement("li");
       li.textContent = d.nome;
-      li.className = "titolo-non-collassabile";
+      li.className = "titolo-nc";
       li.onclick = () => apri(d.link);
       lista.appendChild(li);
       return;
@@ -202,12 +213,24 @@ function render(filtro="") {
     if (d.tipo === "titolo") {
       const li = document.createElement("li");
       li.textContent = d.nome;
-      li.className = "titolo";
+      li.className = "titolo chiuso";
+
       contenitore = document.createElement("ul");
+      contenitore.classList.add("nascosto");
+
+      sezioni.push({ titolo: li, lista: contenitore });
+
       li.onclick = () => {
+        sezioni.forEach(s => {
+          if (s.titolo !== li) {
+            s.titolo.classList.add("chiuso");
+            s.lista.classList.add("nascosto");
+          }
+        });
         contenitore.classList.toggle("nascosto");
         li.classList.toggle("chiuso");
       };
+
       lista.appendChild(li);
       lista.appendChild(contenitore);
       return;
