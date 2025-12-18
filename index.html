@@ -193,63 +193,81 @@ const viewerImg = document.getElementById("viewer-img");
 
 let sezioni = [];
 
-function render(filtro="") {
+function render(filtro = "") {
   lista.innerHTML = "";
   sezioni = [];
-  let contenitoreCorrente = null;
 
-  dati
-    .filter(d => d.nome?.toLowerCase().includes(filtro.toLowerCase()))
-    .forEach(d => {
+  const testo = filtro.toLowerCase();
 
-      if (d.tipo === "titolo-nc") {
-        const li = document.createElement("li");
-        li.textContent = d.nome;
-        li.className = "titolo-nc";
-        li.onclick = () => apri(d.link);
-        lista.appendChild(li);
-        contenitoreCorrente = null;
-        return;
-      }
+  // 1. Mappa del Campus (sempre visibile)
+  const campus = document.createElement("li");
+  campus.textContent = "Mappa del Campus";
+  campus.className = "titolo-nc";
+  campus.onclick = () => apri("generale.jpg");
+  lista.appendChild(campus);
 
-      if (d.tipo === "titolo") {
-        const li = document.createElement("li");
-        li.textContent = d.nome;
-        li.className = "titolo chiuso";
+  // 2. Costruiamo una struttura per palazzina
+  let sezioneCorrente = null;
+  const sezioniDati = {};
 
-        const ul = document.createElement("ul");
-        ul.classList.add("nascosto");
+  dati.forEach(d => {
+    if (d.tipo === "titolo") {
+      sezioneCorrente = d.nome;
+      sezioniDati[sezioneCorrente] = [];
+    } else if (!d.tipo && sezioneCorrente) {
+      sezioniDati[sezioneCorrente].push(d);
+    }
+  });
 
-        sezioni.push({ titolo: li, lista: ul });
+  // 3. Render delle palazzine
+  Object.entries(sezioniDati).forEach(([nomeSezione, aule]) => {
 
-        li.onclick = () => {
-          sezioni.forEach(s => {
-            if (s.titolo !== li) {
-              s.titolo.classList.add("chiuso");
-              s.lista.classList.add("nascosto");
-            }
-          });
-          ul.classList.toggle("nascosto");
-          li.classList.toggle("chiuso");
-        };
+    // filtro sulle aule
+    const auleFiltrate = testo
+      ? aule.filter(a => a.nome.toLowerCase().includes(testo))
+      : aule;
 
-        lista.appendChild(li);
-        lista.appendChild(ul);
+    if (auleFiltrate.length === 0) return;
 
-        contenitoreCorrente = ul;
-        return;
-      }
+    const liTitolo = document.createElement("li");
+    liTitolo.textContent = nomeSezione;
+    liTitolo.className = "titolo";
 
-      if (contenitoreCorrente) {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.textContent = d.nome;
-        a.onclick = () => apri(d.link);
-        li.appendChild(a);
-        contenitoreCorrente.appendChild(li);
-      }
+    const ul = document.createElement("ul");
+
+    // se sto cercando → apro automaticamente
+    if (testo) {
+      liTitolo.classList.remove("chiuso");
+    } else {
+      liTitolo.classList.add("chiuso");
+      ul.classList.add("nascosto");
+    }
+
+    liTitolo.onclick = () => {
+      document.querySelectorAll(".titolo").forEach(t => {
+        if (t !== liTitolo) t.classList.add("chiuso");
+      });
+      document.querySelectorAll("ul").forEach(u => {
+        if (u !== ul) u.classList.add("nascosto");
+      });
+      liTitolo.classList.toggle("chiuso");
+      ul.classList.toggle("nascosto");
+    };
+
+    auleFiltrate.forEach(a => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+      link.textContent = a.nome;
+      link.onclick = () => apri(a.link);
+      li.appendChild(link);
+      ul.appendChild(li);
     });
+
+    lista.appendChild(liTitolo);
+    lista.appendChild(ul);
+  });
 }
+
 
 function apri(src) {
   viewerImg.src = src;
