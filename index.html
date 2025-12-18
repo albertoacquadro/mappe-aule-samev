@@ -1,224 +1,241 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mappe aule</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappe aule SAMEV</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 16px auto;
-      max-width: 600px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 16px auto;
+  max-width: 600px;
+}
 
-    /* HEADER */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
-    .logo {
-      height: 160px;   /* LOGO GRANDE */
-      width: auto;
-      flex-shrink: 0;
-    }
+.logo {
+  height: 140px;
+}
 
-    h1 {
-      font-size: 1.6em;
-      margin: 0;
-    }
+h1 {
+  margin: 0;
+}
 
-    /* SEARCH */
-    input {
-      width: 100%;
-      padding: 12px;
-      font-size: 1.1em;
-      margin-bottom: 18px;
-      box-sizing: border-box;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1em;
+  margin-bottom: 18px;
+}
 
-    /* LISTA */
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-    li {
-      padding: 14px 0;
-      border-bottom: 1px solid #ddd;
-    }
+li {
+  padding: 10px 0;
+}
 
-    a {
-      text-decoration: none;
-      color: #0066cc;
-      font-size: 1.1em;
-      cursor: pointer;
-    }
+a {
+  color: #0066cc;
+  text-decoration: none;
+  cursor: pointer;
+}
 
-    a:hover {
-      text-decoration: underline;
-    }
+a:hover {
+  text-decoration: underline;
+}
 
-    /* FULLSCREEN VIEWER */
-    .viewer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100svh; /* 🔑 FIX MOBILE */
-      background: #000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
+/* TITOLI */
+.titolo {
+  font-weight: bold;
+  color: #000;
+  font-size: 1.15em;
+  padding-top: 22px;
+  cursor: pointer;
+}
 
-      padding:
-        env(safe-area-inset-top)
-        env(safe-area-inset-right)
-        env(safe-area-inset-bottom)
-        env(safe-area-inset-left);
-    }
+.titolo::after {
+  content: " ▾";
+}
 
-    .viewer img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
+.titolo.chiuso::after {
+  content: " ▸";
+}
 
-    .viewer::after {
-      content: "✕";
-      position: absolute;
-      top: 16px;
-      right: 20px;
-      color: white;
-      font-size: 32px;
-      cursor: pointer;
-      z-index: 10000;
-    }
+.titolo-non-collassabile {
+  font-weight: bold;
+  color: #000;
+  font-size: 1.2em;
+  padding-top: 22px;
+}
 
-    /* MOBILE */
-    @media (max-width: 480px) {
-      .logo {
-        height: 120px;
-      }
-    }
+/* VIEWER */
+.viewer {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
-    /* LANDSCAPE MOBILE FIX */
-    @media (orientation: landscape) {
-      body {
-        max-width: none;   /* 🔑 niente tagli */
-        margin: 12px;
-      }
-    }
-  </style>
+.viewer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.viewer::after {
+  content: "✕";
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <img
-      src="logo-samev-trasparente.png"
-      alt="Logo SAMEV"
-      class="logo"
-    >
-    <h1>Mappe delle aule</h1>
-  </div>
+<div class="header">
+  <img src="logo-samev-trasparente.png" class="logo">
+  <h1>Mappe delle aule</h1>
+</div>
 
-  <!-- SEARCH -->
-  <input
-    type="text"
-    id="search"
-    placeholder="Cerca aula (es. Informatica)"
-  >
+<input id="search" placeholder="Cerca aula (es. Romisondo)">
 
-  <!-- LISTA -->
-  <ul id="lista-aule"></ul>
+<ul id="lista"></ul>
 
-  <!-- VIEWER -->
-  <div class="viewer" id="viewer">
-    <img id="viewer-img" src="" alt="Mappa aula">
-  </div>
+<div class="viewer" id="viewer">
+  <img id="viewer-img">
+</div>
 
-  <script>
-    const aule = [
-      {
-        nome: "AULE in PALAZZINA DISAFA",
-              },
-      {
-        nome: "Aula Romisondo – Piano 1 – Palazzina DISAFA",
-        link: "palazzina_DISAFA_P1.jpg"
-      },
-      {
-        nome: "Laboratorio Chimica – Piano 1 – Palazzina DISAFA",
-        link: "palazzina_DISAFA_P1.jpg"
-      },
-      {
-        nome: "Aula Informatica – Piano Terra – Palazzina DISAFA",
-        link: "palazzina_DISAFA_PT.jpg"
-      },
-      {
-        nome: "Aula Zootecnica – Piano 1 – Palazzina DISAFA",
-        link: "palazzina_DISAFA_P1.jpg"
-      },
-      {
-        nome: "AULE in PALAZZINA DSV",
-              },
-      {
-        nome: "Sala OSteologia – Piano 1°, lato destro  – Palazzina DSV",
-        link: "Palazzina-DSV-P1-DX.jpg"
-      }
-            
-    ];
+<script>
+const dati = [
+  { tipo:"titolo-nc", nome:"Mappa del Campus", link:"generale.jpg" },
 
-    const lista = document.getElementById("lista-aule");
-    const search = document.getElementById("search");
-    const viewer = document.getElementById("viewer");
-    const viewerImg = document.getElementById("viewer-img");
+  { tipo:"titolo", nome:"AULE – PALAZZINA DISAFA" },
+  { nome:"Aula Informatica", link:"palazzina-DISAFA-PT.jpg" },
+  { nome:"Laboratorio Analisi Sensoriali", link:"palazzina-DISAFA-PT.jpg" },
+  { nome:"Laboratorio Entomologia", link:"palazzina-DISAFA-PT.jpg" },
+  { nome:"Laboratorio Patologia – Microbiologia", link:"palazzina-DISAFA-PT.jpg" },
+  { nome:"Aula Romisondo", link:"palazzina-DISAFA-P1.jpg" },
+  { nome:"Aula Zootecnica", link:"palazzina-DISAFA-P1.jpg" },
+  { nome:"Laboratorio Chimica", link:"palazzina-DISAFA-P1.jpg" },
+  { nome:"Aula SAMEV 9", link:"zona-mensa.jpg" },
+  { nome:"Aula SAMEV 10", link:"zona-mensa.jpg" },
+  { nome:"Aula SAMEV 11", link:"zona-mensa.jpg" },
+  { nome:"Aula SAMEV 12", link:"zona-mensa.jpg" },
+  { nome:"Laboratorio Analisi Territoriale (GIS)", link:"zona-mensa.jpg" },
 
-    function mostraAule(filtro = "") {
-      lista.innerHTML = "";
+  { tipo:"titolo", nome:"AULE – PALAZZINA SAMEV" },
+  { nome:"Aula Magna A", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula Magna B", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula A", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula B", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula SAMEV 1", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula SAMEV 2", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula SAMEV 3", link:"palazzina-SAMEV-PT.jpg" },
+  { nome:"Aula C", link:"palazzina-SAMEV-P1.jpg" },
+  { nome:"Aula D", link:"palazzina-SAMEV-P1.jpg" },
+  { nome:"Aula S5", link:"palazzina-SAMEV-P1.jpg" },
+  { nome:"Aula S6", link:"palazzina-SAMEV-P1.jpg" },
+  { nome:"Aula SAMEV 5", link:"palazzina-SAMEV-P1.jpg" },
 
-      aule
-        .filter(a =>
-          a.nome.toLowerCase().includes(filtro.toLowerCase())
-        )
-        .forEach(a => {
-          const li = document.createElement("li");
-          const link = document.createElement("a");
+  { tipo:"titolo", nome:"AULE – PALAZZINA DSV" },
+  { nome:"Aula Ghisleni", link:"Palazzina-DSV-PT-SX.jpg" },
+  { nome:"Sala Settoria Anatomia Patologica", link:"Palazzina-DSV-PT-SX.jpg" },
+  { nome:"Aula Ospedale 1", link:"Palazzina-DSV-PT-SX.jpg" },
+  { nome:"Aula Godina", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"Sala Settoria Anatomia Normale", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"Macello didattico", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"Laboratorio biologico", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"CD1", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"CD2", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"CD3", link:"Palazzina-DSV-PT-DX.jpg" },
+  { nome:"Aula Monti", link:"Palazzina-DSV-P1-SX.jpg" },
+  { nome:"Aula Micheletto", link:"Palazzina-DSV-P1-SX.jpg" },
+  { nome:"Sala Riunioni", link:"Palazzina-DSV-P1-SX.jpg" },
+  { nome:"CD4", link:"Palazzina-DSV-P1-SX.jpg" },
+  { nome:"Sala Osteologia", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Aula Informatica Piccola", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Aula Informatica Grande", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Aula Microscopi Singoli", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Aula Microscopi Multipli", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Laboratorio Chimico-Biochimico", link:"Palazzina-DSV-P1-DX.jpg" },
+  { nome:"Laboratorio Chimico", link:"Palazzina-DSV-P1-DX.jpg" }
+];
 
-          link.textContent = a.nome;
-          link.href = "#";
+const lista = document.getElementById("lista");
+const search = document.getElementById("search");
+const viewer = document.getElementById("viewer");
+const viewerImg = document.getElementById("viewer-img");
 
-          link.addEventListener("click", e => {
-            e.preventDefault();
-            apriMappa(a.link);
-          });
+function render(filtro="") {
+  lista.innerHTML = "";
+  let contenitore = lista;
 
-          li.appendChild(link);
-          lista.appendChild(li);
-        });
+  dati.filter(d => d.nome?.toLowerCase().includes(filtro.toLowerCase()))
+    .forEach(d => {
+
+    if (d.tipo === "titolo-nc") {
+      const li = document.createElement("li");
+      li.textContent = d.nome;
+      li.className = "titolo-non-collassabile";
+      li.onclick = () => apri(d.link);
+      lista.appendChild(li);
+      return;
     }
 
-    function apriMappa(src) {
-      viewerImg.src = src;
-      viewer.style.display = "flex";
+    if (d.tipo === "titolo") {
+      const li = document.createElement("li");
+      li.textContent = d.nome;
+      li.className = "titolo";
+      contenitore = document.createElement("ul");
+      li.onclick = () => {
+        contenitore.classList.toggle("nascosto");
+        li.classList.toggle("chiuso");
+      };
+      lista.appendChild(li);
+      lista.appendChild(contenitore);
+      return;
     }
 
-    viewer.addEventListener("click", () => {
-      viewer.style.display = "none";
-      viewerImg.src = "";
-    });
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.textContent = d.nome;
+    a.onclick = () => apri(d.link);
+    li.appendChild(a);
+    contenitore.appendChild(li);
+  });
+}
 
-    search.addEventListener("input", e => {
-      mostraAule(e.target.value);
-    });
+function apri(src) {
+  viewerImg.src = src;
+  viewer.style.display = "flex";
+}
 
-    mostraAule();
-  </script>
+viewer.onclick = () => {
+  viewer.style.display = "none";
+  viewerImg.src = "";
+};
+
+search.oninput = e => render(e.target.value);
+
+render();
+</script>
 
 </body>
 </html>
